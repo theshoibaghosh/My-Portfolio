@@ -37,4 +37,4 @@ I work on :
 
 ## Contact
 Email: Shoibaghosh01@gmail.com
-Instagram: @theshoibaghosh
+Instagram: www.instagram.com/theshoibaghosh
