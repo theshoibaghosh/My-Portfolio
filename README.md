@@ -25,9 +25,6 @@ I work on :
 
 ### Science Fair Projects
 - Robo Footballer/ Robo Soccer Player
-  ![Robo Footballer](1707149457301.jpg)
-  ![Robo Footballer](IMG-20240212-WA0005.jpg)
-  ![Robo Footballer](IMG-20240212-WA0001.jpg)
 - LPG Leak Detection Device
 
 ### Websites
@@ -40,10 +37,6 @@ I work on :
 
 ## Contact
 Email: Shoibaghosh01@gmail.com
-Instagram: www.instagram.com/theshoibaghosh
 
 
-science-fair/IMG-20240212-WA0005.jpg
-websites/
-logos/
-posters/
+
