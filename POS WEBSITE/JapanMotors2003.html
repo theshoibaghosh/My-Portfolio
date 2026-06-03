@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS System Complete</title>
+<style>
+body{margin:0;font-family:Arial;background:#f4f6f9}
+header{background:aqua;padding:10px;display:flex;justify-content:space-between;align-items:center}
+.menu{font-size:28px;cursor:pointer}
+.dropdown{position:absolute;right:10px;top:55px;background:#fff;display:none;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.dropdown div{padding:10px;cursor:pointer}.dropdown div:hover{background:#eee}
+.page{display:none;padding:15px}.active{display:block}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.card,.cart-item{background:#fff;padding:10px;border-radius:8px}
+.card img{width:100%;height:120px;object-fit:cover}
+button{padding:8px;background:#007bff;color:#fff;border:none;border-radius:5px;cursor:pointer;margin-top:5px}
+input{width:100%;padding:8px;margin:8px 0}
+#printArea{background:#fff;width:48mm;padding:3mm;font-size:10px;margin:auto}
+.billRow{display:flex;justify-content:space-between}
+@media print{
+body *{visibility:hidden}
+#printArea,#printArea *{visibility:visible}
+#printArea{position:absolute;left:0;top:0;width:48mm}
+button{display:none}
+}
+
+@page{
+    size:48mm auto;
+    margin:0;
+}
+
+@media print{
+
+html,body{
+width:48mm;
+margin:0!important;
+padding:0!important;
+}
+
+body *{
+visibility:hidden;
+}
+
+#printArea,
+#printArea *{
+visibility:visible;
+}
+
+#printArea{
+position:absolute;
+left:0;
+top:0;
+width:48mm;
+padding:2mm;
+box-sizing:border-box;
+font-size:10px;
+}
+
+header,
+button{
+display:none!important;
+}
+
+}
+
+</style>
+</head>
+<body>
+<header>
+<div style="display:flex;align-items:center;gap:8px" onclick="show('homePage')">
+<div style="display:flex;gap:6px">
+<img src="logo1.png" style="height:45px;width:45px;object-fit:contain">
+<img src="logo2.png" style="height:45px;width:45px;object-fit:contain">
+</div>
+<div style="font-size:16px;font-weight:bold;white-space:nowrap">
+Japan Motors | Japan Auto
+</div>
+</div>
+<div class="menu" onclick="toggleMenu()">☰</div>
+</header>
+<div class="dropdown" id="menuBox">
+<div onclick="openAdd()">➕ Add Product</div>
+<div onclick="openEdit()">✏️ Edit Product</div>
+<div onclick="openHistory()">📊 History</div>
+</div>
+<div class="page active" id="homePage"><h3>Products</h3><div class="products" id="productList"></div><button onclick="goCart()">🛒 Go To Cart</button></div>
+<div class="page" id="cartPage"><h3>Cart</h3><div id="cartList"></div><h3>Total: ৳ <span id="cartTotal">0</span></h3><button onclick="goBill()">Continue</button></div>
+<div class="page" id="billPage"><h3>Billing</h3><input id="buyer" placeholder="Customer Name"><input id="phone" placeholder="Phone"><input id="discount" placeholder="Discount"><button onclick="generateInvoice()">Generate Invoice</button></div>
+<div class="page" id="printPage">
+<h3>Invoice</h3>
+<div id="printArea">
+<div style="text-align:center;border-bottom:1px dashed #000;padding-bottom:5px">
+<img src="logo1.png" style="height:32px;width:32px;object-fit:contain">
+<img src="logo2.png" style="height:32px;width:32px;object-fit:contain"><br>
+<b>Japan Motors | Japan Auto</b><br>
+<span style="font-size:9px">Bike | Parts | Service | Healmets</span>
+</div>
+<div style="margin-top:4px">
+<div class="billRow"><span>Invoice:</span><span id="inv"></span></div>
+<div class="billRow"><span>Date:</span><span id="date"></span></div>
+<div>Customer: <span id="cname"></span></div>
+<div>Phone: <span id="cphone"></span></div>
+</div>
+<hr style="border:1px dashed #000">
+<div id="items"></div>
+<hr style="border:1px dashed #000">
+<div class="billRow"><span>Subtotal</span><span id="subTotal">0</span></div>
+<div class="billRow"><span>Discount</span><span id="discountShow">0</span></div>
+<div class="billRow" style="font-weight:bold;font-size:12px"><span>Total</span><span id="finalAmount"></span></div>
+<hr style="border:1px dashed #000">
+<div style="text-align:center;font-size:9px">Thank you for shopping with us</div>
+</div>
+<button onclick="window.print()">🖨 Print Invoice</button>
+</div>
+<div class="page" id="addPage"><h3>Add Product</h3><input id="pname" placeholder="Product Name"><input id="pprice" placeholder="Price"><input type="file" id="pimgfile"><button onclick="saveProduct()">Save Product</button></div>
+<div class="page" id="editPage"><h3>Edit Product</h3><div id="editList"></div></div>
+<div class="page" id="historyPage"><h3>History</h3><div id="historyList"></div></div>
+<script>
+let products=JSON.parse(localStorage.getItem('products'))||[{name:'Helmet',price:1200,img:'https://via.placeholder.com/150'}];
+let cart=[];let historyData=[];
+function toggleMenu(){menuBox.style.display=menuBox.style.display==='block'?'none':'block'}
+function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');menuBox.style.display='none'}
+function loadProducts(){productList.innerHTML='';products.forEach((p,i)=>productList.innerHTML+=`<div class='card'><img src='${p.img}'><h4>${p.name}</h4><p>৳${p.price}</p><button onclick='addToCart(${i})'>Add To Cart</button></div>`)}
+function addToCart(i){cart.push(products[i]);alert('Added to cart')}
+function goCart(){renderCart();show('cartPage')}
+function renderCart(){cartList.innerHTML='';let t=0;cart.forEach((p,i)=>{t+=+p.price;cartList.innerHTML+=`<div class='cart-item'>${p.name}-৳${p.price}<button onclick='removeItem(${i})'>X</button></div>`});cartTotal.innerText=t}
+function removeItem(i){cart.splice(i,1);renderCart()}
+function goBill(){if(cart.length==0){alert('Cart empty');return;}show('billPage')}
+function generateInvoice(){let total=0;items.innerHTML='';cart.forEach(p=>{total+=+p.price;items.innerHTML+=p.name+' - ৳'+p.price+'<br>'});let d=+discount.value||0;finalAmount.innerText=total-d;inv.innerText='INV-'+Date.now();date.innerText=new Date().toLocaleString();cname.innerText=buyer.value;cphone.innerText=phone.value;historyData.push(inv.innerText);show('printPage')}
+function openAdd(){show('addPage')}
+function openEdit(){loadEdit();show('editPage')}
+function openHistory(){historyList.innerHTML=historyData.join('<br>')||'No history';show('historyPage')}
+function saveProduct(){let f=pimgfile.files[0];let r=new FileReader();r.onload=e=>{products.push({name:pname.value,price:pprice.value,img:e.target.result});localStorage.setItem('products',JSON.stringify(products));loadProducts();show('homePage')};r.readAsDataURL(f)}
+function loadEdit(){editList.innerHTML='';products.forEach((p,i)=>editList.innerHTML+=`<div class='cart-item'>${p.name}<button onclick='deleteProduct(${i})'>Delete</button></div>`)}
+function deleteProduct(i){products.splice(i,1);localStorage.setItem('products',JSON.stringify(products));loadEdit();loadProducts()}
+loadProducts()
+</script></body></html>
