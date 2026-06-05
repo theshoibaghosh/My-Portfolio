@@ -14,6 +14,7 @@ I work on :
 ## Skills
 - HTML
 - illustrator
+- C
 - learning C++ & sketches
 
 ## Want to Learn
